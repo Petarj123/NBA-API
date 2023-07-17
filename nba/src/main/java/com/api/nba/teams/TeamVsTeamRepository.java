@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface TeamVsTeamRepository extends JpaRepository<TeamVsTeam, Long> {
-    Optional<TeamVsTeam> findByTeam(String team);
+    List<TeamVsTeam>findByTeam(String team);
 }
