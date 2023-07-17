@@ -10,20 +10,19 @@ import java.util.List;
 public interface ConferenceRepository extends JpaRepository<Conference, Long> {
     @Query("SELECT c.team FROM Conference c WHERE c.conference = 'Eastern'")
     List<String> findEasternConferenceTeamNames();
-
     @Query("SELECT c.team FROM Conference c WHERE c.conference = 'Western'")
     List<String> findWesternConferenceTeamNames();
 
     @Query("SELECT c.team FROM Conference c WHERE c.division = 'Atlantic'")
-    List<String> findAtlanticConferenceTeamNames();
+    List<String> findAtlanticDivisionTeamNames();
     @Query("SELECT c.team FROM Conference c WHERE c.division = 'Central'")
-    List<String> findCentralConferenceTeamNames();
+    List<String> findCentralDivisionTeamNames();
     @Query("SELECT c.team FROM Conference c WHERE c.division = 'Southeast'")
-    List<String> findSouthEastConferenceTeamNames();
+    List<String> findSouthEastDivisionTeamNames();
     @Query("SELECT c.team FROM Conference c WHERE c.division = 'SouthWest'")
-    List<String> findSouthWestConferenceTeamNames();
-    @Query("SELECT c.team FROM Conference c WHERE c.division = 'NorthEast'")
-    List<String> findNorthEastConferenceTeamNames();
+    List<String> findSouthWestDivisionTeamNames();
     @Query("SELECT c.team FROM Conference c WHERE c.division = 'NorthWest'")
-    List<String> findNorthWestConferenceTeamNames();
+    List<String> findNorthWestDivisionTeamNames();
+    @Query("SELECT c.team FROM Conference c WHERE c.division = 'Pacific'")
+    List<String> findPacificDivisionTeamNames();
 }
