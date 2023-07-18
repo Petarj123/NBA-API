@@ -11,8 +11,8 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "players_regular_season")
-public class Player {
+@Table(name = "players_playoff")
+public class PlayoffPlayer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long id;
@@ -80,4 +80,5 @@ public class Player {
     private Double personalFouls;
     @Column(name = "PTS")
     private Double points;
+
 }
