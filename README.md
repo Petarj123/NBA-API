@@ -1,8 +1,11 @@
-NBA API
-This API provides detailed statistics and data from the NBA.
+**NBA API**
 
-Endpoints
-LeadersController
+**This API provides detailed statistics and data from the NBA.
+
+Endpoints**
+
+**LeadersController**
+
 GET /api/v1/leaders/pts: Retrieves the list of scoring leaders. An optional parameter top can be provided to limit the number of players returned.
 
 GET /api/v1/leaders/ast: Retrieves the list of assist leaders. The top parameter can be used to limit the number of players returned.
@@ -11,9 +14,12 @@ GET /api/v1/leaders/stl: Retrieves the list of steals leaders. The top parameter
 
 GET /api/v1/leaders/reb: Retrieves the list of rebound leaders. The top parameter can be used to limit the number of players returned.
 
-PlayerController
+**PlayerController**
+
 GET /api/v1/players/find: Returns player data. Required parameters are firstName and lastName.
-SeasonController
+
+**SeasonController**
+
 GET /api/v1/seasons/champion: Retrieves the champion of a given season. The required parameter is season.
 
 GET /api/v1/seasons/mvp: Retrieves the Most Valuable Player of a given season. The required parameter is season.
@@ -34,7 +40,8 @@ GET /api/v1/seasons/rebound: Retrieves the rebounding champion of a given season
 
 GET /api/v1/seasons/ws: Retrieves the player with the highest win shares of a given season. The required parameter is season.
 
-TeamController
+**TeamController**
+
 GET /api/v1/team/allTeams: Retrieves all teams.
 
 GET /api/v1/team/conference: Retrieves teams in a given conference. The required parameter is conference.
