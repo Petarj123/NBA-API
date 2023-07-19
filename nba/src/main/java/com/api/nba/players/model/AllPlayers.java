@@ -26,13 +26,13 @@ public class AllPlayers {
     @Column(name = "'TO'")
     private String to;
     @Column(name = "DATE_OF_BIRTH")
-    private LocalDate dateOfBirth;
+    private String dateOfBirth;
     @Column(name = "POSITION")
     private String position;
     @Column(name = "HEIGHT")
-    private Integer height;
+    private String height;
     @Column(name = "WEIGHT")
-    private Integer weight;
+    private String weight;
 
     @OneToMany(mappedBy = "allPlayers")
     private List<Player> playerSeasons;
