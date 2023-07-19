@@ -16,6 +16,9 @@ public class PlayoffPlayer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long id;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "all_players_id", nullable = false)
+    private AllPlayers allPlayers;
     @Column(name = "FIRST_NAME")
     private String firstName;
     @Column(name = "LAST_NAME")
