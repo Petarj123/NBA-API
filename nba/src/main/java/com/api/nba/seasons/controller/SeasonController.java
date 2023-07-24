@@ -14,54 +14,63 @@ public class SeasonController {
 
     private final SeasonService seasonService;
 
-    @GetMapping("/champion")
+    @GetMapping("/{season}/champion")
     @ResponseStatus(HttpStatus.OK)
-    public Champion getChampion(@RequestParam String season) throws InvalidSeasonException {
+    public Champion getChampion(@PathVariable String season) throws InvalidSeasonException {
         return seasonService.getChampion(season);
     }
-    @GetMapping("/mvp")
+
+    @GetMapping("/{season}/mvp")
     @ResponseStatus(HttpStatus.OK)
-    public PlayerAward getMvp(@RequestParam String season) throws InvalidSeasonException {
+    public PlayerAward getMvp(@PathVariable String season) throws InvalidSeasonException {
         return seasonService.getMvp(season);
     }
-    @GetMapping("/dpoy")
+
+    @GetMapping("/{season}/dpoy")
     @ResponseStatus(HttpStatus.OK)
-    public PlayerAward getDpoy(@RequestParam String season) throws InvalidSeasonException {
+    public PlayerAward getDpoy(@PathVariable String season) throws InvalidSeasonException {
         return seasonService.getDefensivePlayerOfTheYear(season);
     }
-    @GetMapping("/smoy")
+
+    @GetMapping("/{season}/smoy")
     @ResponseStatus(HttpStatus.OK)
-    public PlayerAward getSmoy(@RequestParam String season) throws InvalidSeasonException {
+    public PlayerAward getSmoy(@PathVariable String season) throws InvalidSeasonException {
         return seasonService.getSixthManOfTheYear(season);
     }
-    @GetMapping("/mip")
+
+    @GetMapping("/{season}/mip")
     @ResponseStatus(HttpStatus.OK)
-    public PlayerAward getMip(@RequestParam String season) throws InvalidSeasonException {
+    public PlayerAward getMip(@PathVariable String season) throws InvalidSeasonException {
         return seasonService.getMostImprovedPlayer(season);
     }
-    @GetMapping("/roy")
+
+    @GetMapping("/{season}/roy")
     @ResponseStatus(HttpStatus.OK)
-    public PlayerAward getROY(@RequestParam String season) throws InvalidSeasonException {
+    public PlayerAward getRoy(@PathVariable String season) throws InvalidSeasonException {
         return seasonService.getRoy(season);
     }
-    @GetMapping("/assist")
+
+    @GetMapping("/{season}/assist")
     @ResponseStatus(HttpStatus.OK)
-    public PlayerAward getAssistsChampion(@RequestParam String season) throws InvalidSeasonException {
+    public PlayerAward getAssistsChampion(@PathVariable String season) throws InvalidSeasonException {
         return seasonService.getAssistsChampion(season);
     }
-    @GetMapping("/scoring")
+
+    @GetMapping("/{season}/scoring")
     @ResponseStatus(HttpStatus.OK)
-    public PlayerAward getScoringChampion(@RequestParam String season) throws InvalidSeasonException {
+    public PlayerAward getScoringChampion(@PathVariable String season) throws InvalidSeasonException {
         return seasonService.getScoringChampion(season);
     }
-    @GetMapping("/rebound")
+
+    @GetMapping("/{season}/rebound")
     @ResponseStatus(HttpStatus.OK)
-    public PlayerAward getReboundingChampion(@RequestParam String season) throws InvalidSeasonException {
+    public PlayerAward getReboundingChampion(@PathVariable String season) throws InvalidSeasonException {
         return seasonService.getReboundingChampion(season);
     }
-    @GetMapping("/ws")
+
+    @GetMapping("/{season}/ws")
     @ResponseStatus(HttpStatus.OK)
-    public PlayerAward getPlayerWithHighestWinShares(@RequestParam String season) throws InvalidSeasonException {
+    public PlayerAward getPlayerWithHighestWinShares(@PathVariable String season) throws InvalidSeasonException {
         return seasonService.getPlayerWithHighestWinShares(season);
     }
 }

@@ -20,12 +20,16 @@ public class TeamService {
     private final StandingsPerSeasonRepository standingsPerSeasonRepository;
     private final TeamVsTeamRepository teamVsTeamRepository;
     private final Map<String, String> teamNames = new HashMap<>();
-
+    private final Map<String, Supplier<List<String>>> divisionMap = new HashMap<>();
+    private List<String> westernConferenceTeamNames = new ArrayList<>();
+    private List<String> easternConferenceTeamNames = new ArrayList<>();
     public TeamService(ConferenceRepository conferenceRepository, StandingsPerSeasonRepository standingsPerSeasonRepository, TeamVsTeamRepository teamVsTeamRepository) {
         this.conferenceRepository = conferenceRepository;
         this.standingsPerSeasonRepository = standingsPerSeasonRepository;
         this.teamVsTeamRepository = teamVsTeamRepository;
         initializeTeamNames();
+        initializeConferences();
+        initializeDivisions();
     }
 
     public Teams getAllTeams() {
@@ -42,15 +46,11 @@ public class TeamService {
         throw new IllegalArgumentException("Conference can only be east or west");
     }
     public DivisionTeams getDivisionTeams(String division) {
-        List<String> teams = switch (division.toLowerCase()) {
-            case "atlantic" -> conferenceRepository.findAtlanticDivisionTeamNames();
-            case "central" -> conferenceRepository.findCentralDivisionTeamNames();
-            case "southeast" -> conferenceRepository.findSouthEastDivisionTeamNames();
-            case "southwest" -> conferenceRepository.findSouthWestDivisionTeamNames();
-            case "northwest" -> conferenceRepository.findNorthWestDivisionTeamNames();
-            case "pacific" -> conferenceRepository.findPacificDivisionTeamNames();
-            default -> throw new IllegalArgumentException("Invalid division");
-        };
+        Supplier<List<String>> divisionSupplier = divisionMap.get(division.toLowerCase());
+        if (divisionSupplier == null) {
+            throw new IllegalArgumentException("Invalid division");
+        }
+        List<String> teams = divisionSupplier.get();
         return new DivisionTeams(division, teams);
     }
     public StandingsSimple getStandings(String season){
@@ -62,8 +62,8 @@ public class TeamService {
         List<StandingsPerSeason> list = standingsPerSeasonRepository.findBySeason(season);
 
         Map<String, Supplier<List<String>>> conferenceMap = new HashMap<>();
-        conferenceMap.put("Western Conference", conferenceRepository::findWesternConferenceTeamNames);
-        conferenceMap.put("Eastern Conference", conferenceRepository::findEasternConferenceTeamNames);
+        conferenceMap.put("Western Conference", () -> westernConferenceTeamNames);
+        conferenceMap.put("Eastern Conference", () -> easternConferenceTeamNames);
 
         List<Map<String, List<Ranking>>> finalResult = new ArrayList<>();
 
@@ -76,14 +76,6 @@ public class TeamService {
 
     public DivisionRankings getDivisionStandings(String season) {
         List<StandingsPerSeason> list = standingsPerSeasonRepository.findBySeason(season);
-
-        Map<String, Supplier<List<String>>> divisionMap = new HashMap<>();
-        divisionMap.put("Atlantic", conferenceRepository::findAtlanticDivisionTeamNames);
-        divisionMap.put("Central", conferenceRepository::findCentralDivisionTeamNames);
-        divisionMap.put("Pacific", conferenceRepository::findPacificDivisionTeamNames);
-        divisionMap.put("SouthWest", conferenceRepository::findSouthWestDivisionTeamNames);
-        divisionMap.put("NorthWest", conferenceRepository::findNorthWestDivisionTeamNames);
-        divisionMap.put("SouthEast", conferenceRepository::findSouthEastDivisionTeamNames);
 
         List<Map<String, List<Ranking>>> finalResult = new ArrayList<>();
 
@@ -113,6 +105,50 @@ public class TeamService {
         }
         return new HeadToHead(scores);
     }
+    public List<StandingsAdvanced> getTeamSeasonStats(String teamAbbreviation, String season){
+        String team = getFullName(teamAbbreviation);
+        if (season == null){
+            List<StandingsPerSeason> seasons = standingsPerSeasonRepository.findByTeam(team);
+
+            return seasons.stream().map(s -> new StandingsAdvanced(s.getSeason(), s.getTeam(), s.getSeed(),
+                    s.getOverall(), s.getHome(), s.getRoad(),
+                    s.getE(), s.getW(), s.getA(),
+                    s.getC(), s.getSE(), s.getNW(),
+                    s.getP(), s.getSW(), s.getPre(),
+                    s.getPost(), s.getWinLoseRecordLessThanEqualTo3(), s.getWinLoseRecordGreaterOrEqualTo10(),
+                    s.getOct(), s.getNov(), s.getDec(),
+                    s.getJan(), s.getFeb(), s.getMar(),
+                    s.getApr())).toList();
+        }
+        List<StandingsPerSeason> seasonStanding = standingsPerSeasonRepository.findBySeasonAndTeam(season, team);
+
+        return seasonStanding.stream().map(s -> new StandingsAdvanced(s.getSeason(), s.getTeam(), s.getSeed(),
+                s.getOverall(), s.getHome(), s.getRoad(),
+                s.getE(), s.getW(), s.getA(),
+                s.getC(), s.getSE(), s.getNW(),
+                s.getP(), s.getSW(), s.getPre(),
+                s.getPost(), s.getWinLoseRecordLessThanEqualTo3(), s.getWinLoseRecordGreaterOrEqualTo10(),
+                s.getOct(), s.getNov(), s.getDec(),
+                s.getJan(), s.getFeb(), s.getMar(),
+                s.getApr())).toList();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     private List<Ranking> processStandings(List<StandingsPerSeason> list, List<String> divisionTeams) {
         return list.stream()
                 .filter(standings -> divisionTeams.contains(standings.getTeam()))
@@ -195,8 +231,19 @@ public class TeamService {
         teamNames.put("uta", "Utah Jazz");
         teamNames.put("was", "Washington Wizards");
     }
-
-    public String getFullName(String abbreviation) {
+    private void initializeDivisions() {
+        divisionMap.put("atlantic", conferenceRepository::findAtlanticDivisionTeamNames);
+        divisionMap.put("central", conferenceRepository::findCentralDivisionTeamNames);
+        divisionMap.put("pacific", conferenceRepository::findPacificDivisionTeamNames);
+        divisionMap.put("sw", conferenceRepository::findSouthWestDivisionTeamNames);
+        divisionMap.put("nw", conferenceRepository::findNorthWestDivisionTeamNames);
+        divisionMap.put("se", conferenceRepository::findSouthEastDivisionTeamNames);
+    }
+    private void initializeConferences() {
+        westernConferenceTeamNames = conferenceRepository.findWesternConferenceTeamNames();
+        easternConferenceTeamNames = conferenceRepository.findEasternConferenceTeamNames();
+    }
+    private String getFullName(String abbreviation) {
         return teamNames.get(abbreviation);
     }
 }

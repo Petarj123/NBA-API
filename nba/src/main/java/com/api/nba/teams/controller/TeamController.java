@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/team")
 @RequiredArgsConstructor
@@ -18,34 +20,43 @@ public class TeamController {
     public Teams getAllTeams(){
         return teamService.getAllTeams();
     }
-    @GetMapping("/conference")
+    @GetMapping("/conference/{conference}")
     @ResponseStatus(HttpStatus.OK)
-    public ConferenceTeams getConferenceTeams(@RequestParam String conference){
+    public ConferenceTeams getConferenceTeams(@PathVariable String conference){
         return teamService.getConferenceTeams(conference);
     }
-    @GetMapping("/division")
+
+    @GetMapping("/division/{division}")
     @ResponseStatus(HttpStatus.OK)
-    public DivisionTeams getDivisionTeams(@RequestParam String division){
+    public DivisionTeams getDivisionTeams(@PathVariable String division){
         return teamService.getDivisionTeams(division);
     }
-    @GetMapping("/standings")
+
+    @GetMapping("/{season}/standings")
     @ResponseStatus(HttpStatus.OK)
-    public StandingsSimple getStandings(@RequestParam String season){
+    public StandingsSimple getStandings(@PathVariable String season){
         return teamService.getStandings(season);
     }
-    @GetMapping("/standings/conference")
+
+    @GetMapping("/{season}/standings/conference")
     @ResponseStatus(HttpStatus.OK)
-    public DivisionRankings getConferenceStandings(@RequestParam String season){
+    public DivisionRankings getConferenceStandings(@PathVariable String season){
         return teamService.getConferenceStandings(season);
     }
-    @GetMapping("/standings/divisions")
+
+    @GetMapping("/{season}/standings/divisions")
     @ResponseStatus(HttpStatus.OK)
-    public DivisionRankings getDivisionStandings(@RequestParam String season){
+    public DivisionRankings getDivisionStandings(@PathVariable String season){
         return teamService.getDivisionStandings(season);
     }
-    @GetMapping("/h2h")
+    @GetMapping("/h2h/{team1}/{team2}")
     @ResponseStatus(HttpStatus.OK)
-    public HeadToHead getDivisionStandings(@RequestParam String team1, @RequestParam String team2){
+    public HeadToHead getHeadToHeadScore(@PathVariable String team1, @PathVariable String team2){
         return teamService.getHeadToHeadScore(team1, team2);
+    }
+    @GetMapping("{team}/standings/advanced")
+    @ResponseStatus(HttpStatus.OK)
+    public List<StandingsAdvanced> getTeamSeasonStats(@PathVariable String team, @RequestParam(required = false) String season){
+        return teamService.getTeamSeasonStats(team, season);
     }
 }

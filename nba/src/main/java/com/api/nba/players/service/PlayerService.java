@@ -3,8 +3,8 @@ package com.api.nba.players.service;
 import com.api.nba.DTO.PlayerData;
 import com.api.nba.DTO.PlayerStat;
 import com.api.nba.players.model.AllPlayers;
-import com.api.nba.players.repository.PlayerRepository;
 import com.api.nba.players.model.Player;
+import com.api.nba.players.repository.PlayerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,8 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
@@ -24,11 +22,9 @@ public class PlayerService {
     public List<PlayerData> retrievePlayerSeasons(String firstName, String lastName){
         List<Player> players = playerRepository.findByFirstNameAndLastName(firstName, lastName);
 
-        // Group players by AllPlayers entity
         Map<AllPlayers, List<Player>> playersGrouped = players.stream()
                 .collect(Collectors.groupingBy(Player::getAllPlayers));
 
-        // Create PlayerData for each group
         List<PlayerData> playerDataList = new ArrayList<>();
         for (Map.Entry<AllPlayers, List<Player>> entry : playersGrouped.entrySet()) {
             AllPlayers allPlayer = entry.getKey();
