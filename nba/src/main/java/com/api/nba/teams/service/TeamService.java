@@ -1,8 +1,10 @@
 package com.api.nba.teams.service;
 
 import com.api.nba.DTO.*;
+import com.api.nba.exceptions.IllegalAbbreviationException;
 import com.api.nba.exceptions.InvalidConferenceException;
 import com.api.nba.exceptions.InvalidDivisionException;
+import com.api.nba.exceptions.InvalidSeasonException;
 import com.api.nba.teams.model.Conference;
 import com.api.nba.teams.model.StandingsPerSeason;
 import com.api.nba.teams.model.TeamVsTeam;
@@ -55,13 +57,21 @@ public class TeamService {
         List<String> teams = divisionSupplier.get();
         return new DivisionTeams(fullDivisionName, teams);
     }
-    public StandingsSimple getStandings(String season){
+    public StandingsSimple getStandings(String season) throws InvalidSeasonException {
         List<StandingsPerSeason> list = standingsPerSeasonRepository.findBySeason(season);
+
+        if (list.isEmpty()){
+            throw new InvalidSeasonException("Invalid season: " + season);
+        }
         List<Ranking> resultList = list.stream().map(team -> new Ranking(team.getSeed(), team.getTeam(), team.getOverall())).toList();
         return new StandingsSimple(season, resultList);
     }
-    public DivisionRankings getConferenceStandings(String season){
+    public DivisionRankings getConferenceStandings(String season) throws InvalidSeasonException {
         List<StandingsPerSeason> list = standingsPerSeasonRepository.findBySeason(season);
+
+        if (list.isEmpty()){
+            throw new InvalidSeasonException("Invalid season: " + season);
+        }
 
         Map<String, Supplier<List<String>>> conferenceMap = new HashMap<>();
         conferenceMap.put("Western Conference", () -> westernConferenceTeamNames);
@@ -76,8 +86,12 @@ public class TeamService {
         return new DivisionRankings(season, finalResult);
     }
 
-    public DivisionRankings getDivisionStandings(String season) {
+    public DivisionRankings getDivisionStandings(String season) throws InvalidSeasonException {
         List<StandingsPerSeason> list = standingsPerSeasonRepository.findBySeason(season);
+
+        if (list.isEmpty()){
+            throw new InvalidSeasonException("Invalid season: " + season);
+        }
 
         List<Map<String, List<Ranking>>> finalResult = new ArrayList<>();
 
@@ -87,12 +101,15 @@ public class TeamService {
 
         return new DivisionRankings(season, finalResult);
     }
-    public HeadToHead getHeadToHeadScore(String team1, String team2) {
-        if (!teamNames.containsKey(team1.toLowerCase()) || !teamNames.containsKey(team2.toLowerCase())) {
-            throw new IllegalArgumentException("One or both team abbreviations not found");
+    public HeadToHead getHeadToHeadScore(String team1, String team2) throws IllegalAbbreviationException {
+        if (team1.equalsIgnoreCase(team2)){
+            throw new IllegalArgumentException("Teams can not be the same!");
         }
-        String fullTeamName = getFullName(team1.toLowerCase());
-        String fullTeamName2 = getFullName(team2.toLowerCase());
+        if (!teamNames.containsKey(team1.toLowerCase()) || !teamNames.containsKey(team2.toLowerCase())) {
+            throw new IllegalAbbreviationException("One or both team abbreviations not found");
+        }
+        String fullTeamName = getFullTeamName(team1.toLowerCase());
+        String fullTeamName2 = getFullTeamName(team2.toLowerCase());
         List<TeamVsTeam> allGames = teamVsTeamRepository.findByTeam(fullTeamName);
 
         List<H2HScore> scores = new ArrayList<>();
@@ -107,32 +124,19 @@ public class TeamService {
         }
         return new HeadToHead(scores);
     }
-    public List<StandingsAdvanced> getTeamSeasonStats(String teamAbbreviation, String season){
-        String team = getFullName(teamAbbreviation);
+    public List<StandingsAdvanced> getTeamSeasonStats(String teamAbbreviation, String season) throws InvalidSeasonException, IllegalAbbreviationException {
+        String team = getFullTeamName(teamAbbreviation);
         if (season == null){
             List<StandingsPerSeason> seasons = standingsPerSeasonRepository.findByTeam(team);
-
-            return seasons.stream().map(s -> new StandingsAdvanced(s.getSeason(), s.getTeam(), s.getSeed(),
-                    s.getOverall(), s.getHome(), s.getRoad(),
-                    s.getE(), s.getW(), s.getA(),
-                    s.getC(), s.getSE(), s.getNW(),
-                    s.getP(), s.getSW(), s.getPre(),
-                    s.getPost(), s.getWinLoseRecordLessThanEqualTo3(), s.getWinLoseRecordGreaterOrEqualTo10(),
-                    s.getOct(), s.getNov(), s.getDec(),
-                    s.getJan(), s.getFeb(), s.getMar(),
-                    s.getApr())).toList();
+            return seasons.stream().map(this::mapToStandingsAdvanced).toList();
         }
         List<StandingsPerSeason> seasonStanding = standingsPerSeasonRepository.findBySeasonAndTeam(season, team);
 
-        return seasonStanding.stream().map(s -> new StandingsAdvanced(s.getSeason(), s.getTeam(), s.getSeed(),
-                s.getOverall(), s.getHome(), s.getRoad(),
-                s.getE(), s.getW(), s.getA(),
-                s.getC(), s.getSE(), s.getNW(),
-                s.getP(), s.getSW(), s.getPre(),
-                s.getPost(), s.getWinLoseRecordLessThanEqualTo3(), s.getWinLoseRecordGreaterOrEqualTo10(),
-                s.getOct(), s.getNov(), s.getDec(),
-                s.getJan(), s.getFeb(), s.getMar(),
-                s.getApr())).toList();
+        if(seasonStanding.isEmpty()) {
+            throw new InvalidSeasonException("The provided season does not exist.");
+        }
+
+        return seasonStanding.stream().map(this::mapToStandingsAdvanced).toList();
     }
 
 
@@ -149,8 +153,19 @@ public class TeamService {
 
 
 
-    
 
+
+    private StandingsAdvanced mapToStandingsAdvanced(StandingsPerSeason s) {
+        return new StandingsAdvanced(s.getSeason(), s.getTeam(), s.getSeed(),
+                s.getOverall(), s.getHome(), s.getRoad(),
+                s.getE(), s.getW(), s.getA(),
+                s.getC(), s.getSE(), s.getNW(),
+                s.getP(), s.getSW(), s.getPre(),
+                s.getPost(), s.getWinLoseRecordLessThanEqualTo3(), s.getWinLoseRecordGreaterOrEqualTo10(),
+                s.getOct(), s.getNov(), s.getDec(),
+                s.getJan(), s.getFeb(), s.getMar(),
+                s.getApr());
+    }
     private List<Ranking> processStandings(List<StandingsPerSeason> list, List<String> divisionTeams) {
         return list.stream()
                 .filter(standings -> divisionTeams.contains(standings.getTeam()))
@@ -245,30 +260,22 @@ public class TeamService {
         westernConferenceTeamNames = conferenceRepository.findWesternConferenceTeamNames();
         easternConferenceTeamNames = conferenceRepository.findEasternConferenceTeamNames();
     }
-    private String getFullName(String abbreviation) {
+    private String getFullTeamName(String abbreviation) throws IllegalAbbreviationException {
+        if (teamNames.get(abbreviation) == null){
+            throw new IllegalAbbreviationException("Invalid abbreviation: " + abbreviation);
+        }
         return teamNames.get(abbreviation);
     }
     private String getFullDivisionName(String abbreviation) throws InvalidDivisionException {
-        switch (abbreviation){
-            case "atlantic" -> {
-                return "Atlantic";
-            }
-            case "central" -> {
-                return "Central";
-            }
-            case "pacific" -> {
-                return "Pacific";
-            }
-            case "se" -> {
-                return "Southeast";
-            }
-            case "nw" -> {
-                return "Northwest";
-            }
-            case "sw" -> {
-                return "Southwest";
-            }
-        }
-        throw new InvalidDivisionException("Invalid division. Valid divisions are 'atlantic', 'central', 'se', 'nw', 'pacific', and 'sw'.");
+        return switch (abbreviation) {
+            case "atlantic" -> "Atlantic";
+            case "central" -> "Central";
+            case "pacific" -> "Pacific";
+            case "se" -> "Southeast";
+            case "nw" -> "Northwest";
+            case "sw" -> "Southwest";
+            default ->
+                    throw new InvalidDivisionException("Invalid division. Valid divisions are 'atlantic', 'central', 'se', 'nw', 'pacific', and 'sw'.");
+        };
     }
 }
