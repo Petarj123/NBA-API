@@ -1,6 +1,8 @@
 package com.api.nba.teams.service;
 
 import com.api.nba.DTO.*;
+import com.api.nba.exceptions.InvalidConferenceException;
+import com.api.nba.exceptions.InvalidDivisionException;
 import com.api.nba.teams.model.Conference;
 import com.api.nba.teams.model.StandingsPerSeason;
 import com.api.nba.teams.model.TeamVsTeam;
@@ -36,22 +38,22 @@ public class TeamService {
         List<Conference> teams = conferenceRepository.findAll();
         return new Teams(teams);
     }
-    public ConferenceTeams getConferenceTeams(String conference){
+    public ConferenceTeams getConferenceTeams(String conference) throws InvalidConferenceException {
         if (conference.equalsIgnoreCase("west")){
             return new ConferenceTeams("West", conferenceRepository.findWesternConferenceTeamNames());
         }
         else if (conference.equalsIgnoreCase("east")){
             return new ConferenceTeams("East", conferenceRepository.findEasternConferenceTeamNames());
         }
-        throw new IllegalArgumentException("Conference can only be east or west");
+        throw new InvalidConferenceException("Invalid conference: '" + conference + "'. Conference can only be 'east' or 'west'");
     }
-    public DivisionTeams getDivisionTeams(String division) {
+    public DivisionTeams getDivisionTeams(String division) throws InvalidDivisionException {
+        String fullDivisionName = getFullDivisionName(division);
+
         Supplier<List<String>> divisionSupplier = divisionMap.get(division.toLowerCase());
-        if (divisionSupplier == null) {
-            throw new IllegalArgumentException("Invalid division");
-        }
+
         List<String> teams = divisionSupplier.get();
-        return new DivisionTeams(division, teams);
+        return new DivisionTeams(fullDivisionName, teams);
     }
     public StandingsSimple getStandings(String season){
         List<StandingsPerSeason> list = standingsPerSeasonRepository.findBySeason(season);
@@ -147,7 +149,7 @@ public class TeamService {
 
 
 
-
+    
 
     private List<Ranking> processStandings(List<StandingsPerSeason> list, List<String> divisionTeams) {
         return list.stream()
@@ -245,5 +247,28 @@ public class TeamService {
     }
     private String getFullName(String abbreviation) {
         return teamNames.get(abbreviation);
+    }
+    private String getFullDivisionName(String abbreviation) throws InvalidDivisionException {
+        switch (abbreviation){
+            case "atlantic" -> {
+                return "Atlantic";
+            }
+            case "central" -> {
+                return "Central";
+            }
+            case "pacific" -> {
+                return "Pacific";
+            }
+            case "se" -> {
+                return "Southeast";
+            }
+            case "nw" -> {
+                return "Northwest";
+            }
+            case "sw" -> {
+                return "Southwest";
+            }
+        }
+        throw new InvalidDivisionException("Invalid division. Valid divisions are 'atlantic', 'central', 'se', 'nw', 'pacific', and 'sw'.");
     }
 }

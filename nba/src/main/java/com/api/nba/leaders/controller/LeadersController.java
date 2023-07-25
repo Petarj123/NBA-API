@@ -4,6 +4,7 @@ import com.api.nba.DTO.AssistsLeader;
 import com.api.nba.DTO.PointsLeader;
 import com.api.nba.DTO.ReboundsLeader;
 import com.api.nba.DTO.StealsLeader;
+import com.api.nba.exceptions.InvalidPlayerCountException;
 import com.api.nba.leaders.service.LeadersService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,22 +21,22 @@ public class LeadersController {
 
     @GetMapping("/pts")
     @ResponseStatus(HttpStatus.OK)
-    public List<PointsLeader> getScoringLeaders(@RequestParam(required = false) Integer top){
+    public List<PointsLeader> getScoringLeaders(@RequestParam(required = false) Integer top) throws InvalidPlayerCountException {
         return leadersService.scoringLeadersList(top);
     }
     @GetMapping("/ast")
     @ResponseStatus(HttpStatus.OK)
-    public List<AssistsLeader> getAssistsLeaders(@RequestParam(required = false) Integer top){
+    public List<AssistsLeader> getAssistsLeaders(@RequestParam(required = false) Integer top) throws InvalidPlayerCountException {
         return leadersService.assistsLeaderList(top);
     }
     @GetMapping("/stl")
     @ResponseStatus(HttpStatus.OK)
-    public List<StealsLeader> getStealsLeaders(@RequestParam(required = false) Integer top){
+    public List<StealsLeader> getStealsLeaders(@RequestParam(required = false) Integer top) throws InvalidPlayerCountException {
         return leadersService.stealsLeaderList(top);
     }
     @GetMapping("/reb")
     @ResponseStatus(HttpStatus.OK)
-    public List<ReboundsLeader> getReboundingLeaders(@RequestParam(required = false) Integer top){
+    public List<ReboundsLeader> getReboundingLeaders(@RequestParam(required = false) Integer top) throws InvalidPlayerCountException {
         return leadersService.reboundsLeaderList(top);
     }
 

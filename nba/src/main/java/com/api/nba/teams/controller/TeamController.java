@@ -1,6 +1,8 @@
 package com.api.nba.teams.controller;
 
 import com.api.nba.DTO.*;
+import com.api.nba.exceptions.InvalidConferenceException;
+import com.api.nba.exceptions.InvalidDivisionException;
 import com.api.nba.teams.service.TeamService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,13 +24,13 @@ public class TeamController {
     }
     @GetMapping("/conference/{conference}")
     @ResponseStatus(HttpStatus.OK)
-    public ConferenceTeams getConferenceTeams(@PathVariable String conference){
+    public ConferenceTeams getConferenceTeams(@PathVariable String conference) throws InvalidConferenceException {
         return teamService.getConferenceTeams(conference);
     }
 
     @GetMapping("/division/{division}")
     @ResponseStatus(HttpStatus.OK)
-    public DivisionTeams getDivisionTeams(@PathVariable String division){
+    public DivisionTeams getDivisionTeams(@PathVariable String division) throws InvalidDivisionException {
         return teamService.getDivisionTeams(division);
     }
 
