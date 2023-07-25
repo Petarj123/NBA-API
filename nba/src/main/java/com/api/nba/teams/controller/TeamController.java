@@ -1,8 +1,10 @@
 package com.api.nba.teams.controller;
 
 import com.api.nba.DTO.*;
+import com.api.nba.exceptions.IllegalAbbreviationException;
 import com.api.nba.exceptions.InvalidConferenceException;
 import com.api.nba.exceptions.InvalidDivisionException;
+import com.api.nba.exceptions.InvalidSeasonException;
 import com.api.nba.teams.service.TeamService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -36,29 +38,29 @@ public class TeamController {
 
     @GetMapping("/{season}/standings")
     @ResponseStatus(HttpStatus.OK)
-    public StandingsSimple getStandings(@PathVariable String season){
+    public StandingsSimple getStandings(@PathVariable String season) throws InvalidSeasonException {
         return teamService.getStandings(season);
     }
 
     @GetMapping("/{season}/standings/conference")
     @ResponseStatus(HttpStatus.OK)
-    public DivisionRankings getConferenceStandings(@PathVariable String season){
+    public DivisionRankings getConferenceStandings(@PathVariable String season) throws InvalidSeasonException {
         return teamService.getConferenceStandings(season);
     }
 
     @GetMapping("/{season}/standings/divisions")
     @ResponseStatus(HttpStatus.OK)
-    public DivisionRankings getDivisionStandings(@PathVariable String season){
+    public DivisionRankings getDivisionStandings(@PathVariable String season) throws InvalidSeasonException {
         return teamService.getDivisionStandings(season);
     }
     @GetMapping("/h2h/{team1}/{team2}")
     @ResponseStatus(HttpStatus.OK)
-    public HeadToHead getHeadToHeadScore(@PathVariable String team1, @PathVariable String team2){
+    public HeadToHead getHeadToHeadScore(@PathVariable String team1, @PathVariable String team2) throws IllegalAbbreviationException {
         return teamService.getHeadToHeadScore(team1, team2);
     }
     @GetMapping("{team}/standings/advanced")
     @ResponseStatus(HttpStatus.OK)
-    public List<StandingsAdvanced> getTeamSeasonStats(@PathVariable String team, @RequestParam(required = false) String season){
+    public List<StandingsAdvanced> getTeamSeasonStats(@PathVariable String team, @RequestParam(required = false) String season) throws InvalidSeasonException, IllegalAbbreviationException {
         return teamService.getTeamSeasonStats(team, season);
     }
 }
