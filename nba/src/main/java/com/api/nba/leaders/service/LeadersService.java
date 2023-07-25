@@ -28,8 +28,8 @@ public class LeadersService {
     private final StealsRepository stealsRepository;
 
     public List<PointsLeader> scoringLeadersList(Integer numberOfPLayers) throws InvalidPlayerCountException {
-        if (numberOfPLayers != null && numberOfPLayers <= 0){
-            throw new InvalidPlayerCountException("Number of players should be greater than zero.");
+        if (numberOfPLayers != null && (numberOfPLayers <= 0 || numberOfPLayers > 250)){
+            throw new InvalidPlayerCountException("Number of players should be greater than zero and less than or equal to 250.");
         }
 
         if (numberOfPLayers == null){
@@ -40,8 +40,8 @@ public class LeadersService {
         return players.stream().map(player -> new PointsLeader(player.getRank(), player.getPlayerName(), player.getPoints())).toList();
     }
     public List<AssistsLeader> assistsLeaderList(Integer numberOfPLayers) throws InvalidPlayerCountException {
-        if (numberOfPLayers != null && numberOfPLayers <= 0){
-            throw new InvalidPlayerCountException("Number of players should be greater than zero.");
+        if (numberOfPLayers != null && (numberOfPLayers <= 0 || numberOfPLayers > 250)){
+            throw new InvalidPlayerCountException("Number of players should be greater than zero and less than or equal to 250.");
         }
 
         if (numberOfPLayers == null){
@@ -52,8 +52,8 @@ public class LeadersService {
         return players.stream().map(player -> new AssistsLeader(player.getRank(), player.getPlayerName(), player.getAssists())).toList();
     }
     public List<ReboundsLeader> reboundsLeaderList(Integer numberOfPlayers) throws InvalidPlayerCountException {
-        if (numberOfPlayers != null && numberOfPlayers <= 0){
-            throw new InvalidPlayerCountException("Number of players should be greater than zero.");
+        if (numberOfPlayers != null && (numberOfPlayers <= 0 || numberOfPlayers > 250)){
+            throw new InvalidPlayerCountException("Number of players should be greater than zero and less than or equal to 250.");
         }
 
         if (numberOfPlayers == null){
@@ -64,8 +64,8 @@ public class LeadersService {
         return players.stream().map(player -> new ReboundsLeader(player.getRank(), player.getPlayerName(), player.getRebounds())).toList();
     }
     public List<StealsLeader> stealsLeaderList(Integer numberOfPlayers) throws InvalidPlayerCountException {
-        if (numberOfPlayers != null && numberOfPlayers <= 0){
-            throw new InvalidPlayerCountException("Number of players should be greater than zero.");
+        if (numberOfPlayers != null && (numberOfPlayers <= 0 || numberOfPlayers > 250)){
+            throw new InvalidPlayerCountException("Number of players should be greater than zero and less than or equal to 250.");
         }
 
         if (numberOfPlayers == null){
