@@ -1,5 +1,8 @@
 package com.api.nba.DTO;
 
+import lombok.Builder;
+
+@Builder
 public record PlayerStat(
         String season,
         String league,
