@@ -83,7 +83,6 @@ public class SeasonServiceTest {
 
     @Test
     void getScoringChampionSuccess() throws JsonProcessingException {
-        // Note: You should replace "ActualScoringChampion" with the real scoring champion of the season.
         testAwardSuccess("2015-2016", "Scoring Champion", season1 -> {
             try {
                 return seasonService.getScoringChampion(season1);
@@ -95,7 +94,6 @@ public class SeasonServiceTest {
 
     @Test
     void getAssistsChampionSuccess() throws JsonProcessingException {
-        // Note: You should replace "ActualAssistsChampion" with the real assists champion of the season.
         testAwardSuccess("2015-2016", "Assists Champion", season1 -> {
             try {
                 return seasonService.getAssistsChampion(season1);
@@ -107,7 +105,6 @@ public class SeasonServiceTest {
 
     @Test
     void getReboundingChampionSuccess() throws JsonProcessingException {
-        // Note: You should replace "ActualReboundingChampion" with the real rebounding champion of the season.
         testAwardSuccess("2015-2016", "Rebounding Champion", season1 -> {
             try {
                 return seasonService.getReboundingChampion(season1);
@@ -173,10 +170,23 @@ public class SeasonServiceTest {
             }
         });
 
-        // Execute & assert that the method under test throws an InvalidSeasonException for a different season.
-        assertThrows(InvalidSeasonException.class, () -> {
-            seasonService.getChampion("2014-2015");
-        });
+        assertThrows(InvalidSeasonException.class,
+                () -> seasonService.getChampion("2014-2015"));
+    }
+    // Works for all awards
+    @Test
+    void checkIfSeasonIsNotAvailableShouldThrowInvalidSeasonExceptionAndCorrectMessage() {
+        when(seasonRepository.findBySeason("2025-2026")).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(
+                InvalidSeasonException.class,
+                () -> seasonService.getChampion("2025-2026")
+        );
+
+        String expectedMessage = "The season 2025-2026 is not available";
+        String actualMessage = exception.getMessage();
+
+        assertEquals(expectedMessage, actualMessage);
     }
 
     private void testAwardSuccess(String seasonYear, String award, Function<String, PlayerAward> method, String expectedWinner) throws JsonProcessingException {
