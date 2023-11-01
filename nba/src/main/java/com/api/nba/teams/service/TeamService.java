@@ -11,6 +11,7 @@ import com.api.nba.teams.model.TeamVsTeam;
 import com.api.nba.teams.repository.ConferenceRepository;
 import com.api.nba.teams.repository.StandingsPerSeasonRepository;
 import com.api.nba.teams.repository.TeamVsTeamRepository;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -37,17 +38,28 @@ public class TeamService {
     }
 
     public Teams getAllTeams() {
-        List<Conference> teams = conferenceRepository.findAll();
-        return new Teams(teams);
+        try {
+            List<Conference> teams = conferenceRepository.findAll();
+            return new Teams(teams);
+        } catch (DataAccessException e) {
+            // Log the exception details and potentially notify
+            throw new RuntimeException("Could not retrieve teams from the database", e);
+            // Or return some default value, though this depends on how you want such scenarios handled in your application
+        }
     }
+
     public ConferenceTeams getConferenceTeams(String conference) throws InvalidConferenceException {
-        if (conference.equalsIgnoreCase("west")){
-            return new ConferenceTeams("West", conferenceRepository.findWesternConferenceTeamNames());
+        try {
+            if (conference.equalsIgnoreCase("west")){
+                return new ConferenceTeams("West", conferenceRepository.findWesternConferenceTeamNames());
+            }
+            else if (conference.equalsIgnoreCase("east")){
+                return new ConferenceTeams("East", conferenceRepository.findEasternConferenceTeamNames());
+            }
+            throw new InvalidConferenceException("Invalid conference: '" + conference + "'. Conference can only be 'east' or 'west'");
+        } catch (DataAccessException e) {
+            throw e;
         }
-        else if (conference.equalsIgnoreCase("east")){
-            return new ConferenceTeams("East", conferenceRepository.findEasternConferenceTeamNames());
-        }
-        throw new InvalidConferenceException("Invalid conference: '" + conference + "'. Conference can only be 'east' or 'west'");
     }
     public DivisionTeams getDivisionTeams(String division) throws InvalidDivisionException {
         String fullDivisionName = getFullDivisionName(division);
@@ -138,22 +150,6 @@ public class TeamService {
 
         return seasonStanding.stream().map(this::mapToStandingsAdvanced).toList();
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     private StandingsAdvanced mapToStandingsAdvanced(StandingsPerSeason s) {
         return new StandingsAdvanced(s.getSeason(), s.getTeam(), s.getSeed(),
